@@ -18,6 +18,17 @@ Renderer::Renderer()
 
 Renderer::~Renderer(){}
 
+void Renderer::loadData(int brickID)
+{
+	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
+	if (brickID == 0)newStoragePoint = glm::vec3(77, 77, 77); // tirar isso aqui, apenas debug
+	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
+	auto brick = m_reader->readTileData(positionInFile);
+	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
+	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x, 
+			(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
+}
+
 void Renderer::checkmodeldata()
 {
 	int numberTotalBricks  = Model::getInstance()->getNumberTotalTiles();
@@ -35,12 +46,16 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
-	auto brick = m_reader->readTileData(0);
-	checkmodeldata();
-	Model::getInstance()->setBrickPosition();
 	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
-	glsl_bricks_buffer->SetSubData(brick, 0, 0, 0, GL_RED, GL_UNSIGNED_BYTE);
-	//glsl_bricks_buffer->SetSubData(brick, 56, 56, 56, GL_RED, GL_UNSIGNED_BYTE);
+	loadData(0);
+	//loadData(1);
+	//loadData(2);
+	//loadData(3);
+	//loadData(4);
+	//loadData(5);
+	//loadData(6);
+	//loadData(7);
+	//loadData(8);
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 

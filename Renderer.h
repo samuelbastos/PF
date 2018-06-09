@@ -32,6 +32,7 @@ private:
 		float Position[3];
 	} Vertex;
 
+	void loadData(int brickID);
 	void checkmodeldata();
 	void createRenderingPass();
 	void resize(int w, int h);

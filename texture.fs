@@ -67,7 +67,7 @@ vec4 getTexel(vec3 in_pos)
   ivec3 ijk = fWorld(in_pos);
   // ID do tile de menor tamanho que contem o ponto ;
   int id = fid(level, ijk);
-  vec3 positionStorage = BricksCoords[0];
+  vec3 positionStorage;
 
   // isso ocorre somente no máximo a altura da árvore
   // ou seja, o numero de levels
@@ -76,8 +76,8 @@ vec4 getTexel(vec3 in_pos)
     positionStorage = BricksCoords[id];
     if(positionStorage.x < 0)
     {
-      level = level -1;
       id = fparent(level, id);
+      level = level -1;
     }
     else
     {
@@ -85,9 +85,37 @@ vec4 getTexel(vec3 in_pos)
     }
   }
 
-  float xNormalized = (((in_pos.x / 256.0) * 32.0) + positionStorage.x) / 256.0;
-  float yNormalized = (((in_pos.y / 256.0) * 32.0) + positionStorage.y) / 256.0;
-  float zNormalized = (((in_pos.z / 256.0) * 32.0) + positionStorage.z) / 256.0;
+  int dimension;
+  if(level == 3)
+  {
+    dimension = 32;
+  }
+    if(level == 2)
+  {
+    dimension = 64;
+  }
+    if(level == 1)
+  {
+    dimension = 128;
+  }
+    if(level == 0)
+  {
+    dimension = 256;
+  }
+  if(level == 1)
+  {
+    return vec4(0.2,1.0,0.0,0.2);
+  }
+  ivec3 tileIndex = fijk(level, id);
+  vec3 min = tileIndex * dimension;
+  vec3 max = min + vec3(dimension,dimension,dimension);
+  float xn = (in_pos.x - min.x)/(max.x - min.x);
+  float yn = (in_pos.y - min.y)/(max.y - min.y);
+  float zn = (in_pos.z - min.z)/(max.z - min.z);
+
+  float xNormalized = ((xn * 32.0) + positionStorage.x) / 256.0;
+  float yNormalized = ((yn * 32.0) + positionStorage.y) / 256.0;
+  float zNormalized = ((zn * 32.0) + positionStorage.z) / 256.0;
   //if(xNormalized <= 1 && yNormalized <= 1 && zNormalized <= 1)
   //  return vec4(0.2,1.0,0.0,0.2);
   vec3 coords = vec3(xNormalized, yNormalized, zNormalized);
