@@ -107,6 +107,8 @@ void render()
 {        
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	renderer->render(&cam);
+	//auto error = glGetError();
+	//std::cout << glewGetErrorString(error) << std::endl;
 	/* Swap front and back buffers */
 	glfwSwapBuffers(window);
 	/* Poll for and process events */

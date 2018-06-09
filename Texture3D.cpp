@@ -63,6 +63,11 @@ namespace gl
 		return true;
 	}
 
+	bool Texture3D::SetStorage(GLenum internalformat)
+	{
+		glTextureStorage3D(m_textureID, 1, internalformat, m_width, m_height, m_depth);
+		return true;
+	}
 	bool Texture3D::SetSubData(GLvoid* subdata, int xoffset, int yoffset, int zoffset, GLenum format, GLenum type)
 	{
 		glBindTexture(GL_TEXTURE_3D, m_textureID);

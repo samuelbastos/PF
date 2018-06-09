@@ -30,13 +30,16 @@ Model::Model()
 	m_brickPos = new float[12 * m_numberTotalTiles];
 	for (int i = 0; i < (12 * m_numberTotalTiles); i++)
 		m_brickPos[i] = -1.0f;
-	
+	for (int i = 0; i < m_numberTotalTiles; i++)
+		m_brickPosVec.push_back(glm::vec3(-1));
+
 	m_reader.close();
 }
 Model::~Model(){}
 
 void Model::setBrickPosition(int brickID, glm::vec3 position)
 {
+	m_brickPosVec[brickID] = position;
 	m_brickPos[brickID*3] = position.x;
 	m_brickPos[brickID*3+1] = position.y;
 	m_brickPos[brickID*3+2] = position.z;

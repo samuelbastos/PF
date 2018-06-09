@@ -11,7 +11,7 @@ uniform sampler1D TexTransferFunc;
 uniform vec3 VolumeDimension;
 uniform vec3 BrickDimension;
 uniform float StepSize;
-uniform vec3 BricksCoords[1000];
+uniform vec3 BricksCoords[585];
 
 struct Ray {
   vec3 Origin;
@@ -36,7 +36,7 @@ int fid(int level, ivec3 ijk)
   int N  = int(floor((pow(8,level) - 1) / 7));
   int nn = int(pow(2, level));
   int t = N + (ijk.x*nn + ijk.y)*nn + ijk.z;
-  return int(t);
+  return t;
 }
 
 ivec3 fijk(int level, int id)
@@ -67,14 +67,14 @@ vec4 getTexel(vec3 in_pos)
   ivec3 ijk = fWorld(in_pos);
   // ID do tile de menor tamanho que contem o ponto ;
   int id = fid(level, ijk);
-  vec3 positionStorage;
+  vec3 positionStorage = BricksCoords[id];
 
   // isso ocorre somente no máximo a altura da árvore
   // ou seja, o numero de levels
   while(level >= 0)
   {
     positionStorage = BricksCoords[id];
-    if(positionStorage.x < 0)
+    if(positionStorage.x == -1)
     {
       id = fparent(level, id);
       level = level -1;
@@ -85,39 +85,43 @@ vec4 getTexel(vec3 in_pos)
     }
   }
 
-  int dimension;
-  if(level == 3)
-  {
-    dimension = 32;
-  }
-    if(level == 2)
-  {
-    dimension = 64;
-  }
-    if(level == 1)
-  {
-    dimension = 128;
-  }
-    if(level == 0)
-  {
-    dimension = 256;
-  }
-  if(level == 1)
-  {
-    return vec4(0.2,1.0,0.0,0.2);
-  }
+//  if(positionStorage.x == 64)
+//  {
+//    return vec4(0.0, 0.0, 1.0, 1.0);
+//  }
+//  if(positionStorage.x == 96)
+//  {
+//    return vec4(1.0, 1.0, 0.0, 1.0);
+//  }
+
+  int dimension = int(256 / pow(2,level));
+
   ivec3 tileIndex = fijk(level, id);
+
+  if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 7)
+  {
+    return vec4(0.0, 0.0, 1.0, 1.0);
+  }
+
+  if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 5)
+  {
+    return vec4(1.0, 1.0, 0.0, 1.0);
+  }
+
+  if(level == 0 && tileIndex.x == 0 && tileIndex.y == 0 && tileIndex.z == 0)
+  {
+    return vec4(0.0, 0.0, 0.0, 1.0);
+  }
+
   vec3 min = tileIndex * dimension;
   vec3 max = min + vec3(dimension,dimension,dimension);
   float xn = (in_pos.x - min.x)/(max.x - min.x);
   float yn = (in_pos.y - min.y)/(max.y - min.y);
   float zn = (in_pos.z - min.z)/(max.z - min.z);
 
-  float xNormalized = ((xn * 32.0) + positionStorage.x) / 256.0;
-  float yNormalized = ((yn * 32.0) + positionStorage.y) / 256.0;
-  float zNormalized = ((zn * 32.0) + positionStorage.z) / 256.0;
-  //if(xNormalized <= 1 && yNormalized <= 1 && zNormalized <= 1)
-  //  return vec4(0.2,1.0,0.0,0.2);
+  float xNormalized = (positionStorage.x / 256.0) +  (xn / 8.0) ;
+  float yNormalized = (positionStorage.y / 256.0) +  (yn / 8.0) ;
+  float zNormalized = (positionStorage.z / 256.0) +  (zn / 8.0) ;
   vec3 coords = vec3(xNormalized, yNormalized, zNormalized);
   float vol_density = texture(BricksBuffer, coords).r;
   return texture(TexTransferFunc, vol_density);

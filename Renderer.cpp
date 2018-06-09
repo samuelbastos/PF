@@ -21,12 +21,13 @@ Renderer::~Renderer(){}
 void Renderer::loadData(int brickID)
 {
 	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
-	if (brickID == 0)newStoragePoint = glm::vec3(77, 77, 77); // tirar isso aqui, apenas debug
 	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
-	auto brick = m_reader->readTileData(positionInFile);
+	auto brick = m_reader->readTileData(0);
 	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
 	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x, 
 			(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
+	auto error = glGetError();
+	std::cout << glewGetErrorString(error) << std::endl;
 }
 
 void Renderer::checkmodeldata()
@@ -45,17 +46,11 @@ void Renderer::init(int screenWidth, int screenHeight)
 
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
-	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
+	glsl_bricks_buffer->SetStorage(GL_R32F);
+
 	loadData(0);
-	//loadData(1);
-	//loadData(2);
-	//loadData(3);
-	//loadData(4);
-	//loadData(5);
-	//loadData(6);
-	//loadData(7);
-	//loadData(8);
+	loadData(582); // 64,0,0
+	loadData(584); // 92,0,0
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 
@@ -100,8 +95,9 @@ void Renderer::createRenderingPass()
 	shader_rendering->SetUniform("BrickDimension", m_brick_dim);
 	shader_rendering->SetUniform("StepSize", vr_stepsize);
 
+	auto vecpos = Model::getInstance()->getBricksPositionsVec();
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
-		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
+		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), &vecpos[0][0]);
 
 	updateShaderParams();
 

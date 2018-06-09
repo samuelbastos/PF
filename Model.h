@@ -9,6 +9,7 @@ using namespace std;
 class Model
 {
 	float* m_brickPos;
+	vector<glm::vec3> m_brickPosVec;
 	std::map<int, int> m_mapPos;					// Map Chave do Brick <-> Posição onde se encontram seus dados nos arquivos ;
 	ifstream m_reader;
 	int m_numberTotalTiles;							// Total de Bricks gerados ;
@@ -32,5 +33,6 @@ public:
 	inline int getVolumeOriginalSize() { return m_volumeOriginalSize; }
 	inline float* getBricksPositions() { return m_brickPos; }
 	inline int getPositionInFileById(int id) { return m_mapPos[id]; }
+	inline std::vector<glm::vec3> getBricksPositionsVec() { return m_brickPosVec;  }
 };
 

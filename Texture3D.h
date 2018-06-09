@@ -15,7 +15,7 @@ namespace gl
 			, GLint wrap_s_param, GLint wrap_t_param, GLint wrap_r_param);
 
 		bool SetData(GLvoid* data, GLint internalformat, GLenum format, GLenum type);
-
+		bool SetStorage(GLenum internalformat);
 		bool SetSubData(GLvoid* subdata, int xoffset, int yoffset, int zoffset, GLenum format, GLenum type);
 
 		GLuint GetTextureID();
