@@ -6,11 +6,11 @@
 
 using namespace std;
 
-class DiscReader
+class DiskReader
 {
 public:
-	DiscReader();
-	~DiscReader();
+	DiskReader();
+	~DiskReader();
 	void readDataTEST(int tileLocation, int infoLocation);
 	unsigned char* readTileData(int infoLocation);
 

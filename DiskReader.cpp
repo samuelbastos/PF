@@ -1,18 +1,18 @@
-#include "DiscReader.h"
+#include "DiskReader.h"
 
 #define TILE_SIZE 32768
 
-DiscReader::DiscReader() : m_tileReader(ifstream("tiles.bin", ios::in | ios::binary))
+DiskReader::DiskReader() : m_tileReader(ifstream("tiles.bin", ios::in | ios::binary))
 						 , m_infoReader(ifstream("tilesinfo.bin", ios::in | ios::binary))
 {
 	Model::getInstance();
 }
 
-DiscReader::~DiscReader()
+DiskReader::~DiskReader()
 {
 }
 
-void DiscReader::readDataTEST(int tileLocation, int infoLocation)
+void DiskReader::readDataTEST(int tileLocation, int infoLocation)
 {
 	unsigned char* tilebuffer = new unsigned char[TILE_SIZE];
 	//m_reader.seekg(location * TILE_SIZE);
@@ -29,7 +29,7 @@ void DiscReader::readDataTEST(int tileLocation, int infoLocation)
 	printf("4: %f\n", infobuffer[3]);
 }
 
-unsigned char* DiscReader::readTileData(int tileLocation)
+unsigned char* DiskReader::readTileData(int tileLocation)
 {
 	unsigned char* tilebuffer = new unsigned char[TILE_SIZE];
 	m_tileReader.seekg(tileLocation);

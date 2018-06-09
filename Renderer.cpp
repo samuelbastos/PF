@@ -30,15 +30,9 @@ void Renderer::loadData(int brickID)
 	std::cout << glewGetErrorString(error) << std::endl;
 }
 
-void Renderer::checkmodeldata()
-{
-	int numberTotalBricks  = Model::getInstance()->getNumberTotalTiles();
-	int volumeOriginalSize = Model::getInstance()->getVolumeOriginalSize();
-}
-
 void Renderer::init(int screenWidth, int screenHeight)
 {
-	m_reader = new DiscReader();
+	m_reader = new DiskReader();
 
 	m_volume_dim = glm::vec3((float)VOS, (float)VOS, (float)VOS);
 	m_brick_dim  = glm::vec3((float)TD, (float)TD, (float)TD);
@@ -48,9 +42,12 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	glsl_bricks_buffer->SetStorage(GL_R32F);
 
-	loadData(0);
-	loadData(582); // 64,0,0
-	loadData(584); // 92,0,0
+	/* ******************************* */
+		loadData(0);   // 32,0,0
+		loadData(582); // 64,0,0
+		loadData(584); // 92,0,0
+	/* ******************************* */
+
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 

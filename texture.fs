@@ -98,20 +98,20 @@ vec4 getTexel(vec3 in_pos)
 
   ivec3 tileIndex = fijk(level, id);
 
-  if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 7)
-  {
-    return vec4(0.0, 0.0, 1.0, 1.0);
-  }
+  //if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 7)
+  //{
+  // return vec4(0.0, 0.0, 1.0, 1.0);
+  //}
 
-  if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 5)
-  {
-    return vec4(1.0, 1.0, 0.0, 1.0);
-  }
+  //if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 5)
+  //{
+  //  return vec4(1.0, 1.0, 0.0, 1.0);
+  //}
 
-  if(level == 0 && tileIndex.x == 0 && tileIndex.y == 0 && tileIndex.z == 0)
-  {
-    return vec4(0.0, 0.0, 0.0, 1.0);
-  }
+  //if(level == 0 && tileIndex.x == 0 && tileIndex.y == 0 && tileIndex.z == 0)
+  //{
+  //  return vec4(0.0, 0.0, 0.0, 1.0);
+  //}
 
   vec3 min = tileIndex * dimension;
   vec3 max = min + vec3(dimension,dimension,dimension);

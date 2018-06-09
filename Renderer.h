@@ -7,7 +7,7 @@
 #include "Texture3D.h"
 #include "TransferFunction.h"
 #include "Volume.h"
-#include "DiscReader.h"
+#include "DiskReader.h"
 
 class Renderer
 {
@@ -44,7 +44,7 @@ private:
 
 	bool vr_outdated = true;
 
-	DiscReader* m_reader;
+	DiskReader* m_reader;
 
 	gl::Texture3D* glsl_bricks_buffer;
 	gl::Texture1D* glsl_transfer_function;	// Função de transferência (Texture 1D) ;

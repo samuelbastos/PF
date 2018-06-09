@@ -47,10 +47,10 @@ void Model::setBrickPosition(int brickID, glm::vec3 position)
 
 glm::vec3 Model::genNewStoragePoint()
 {
+	auto newpoint = glm::vec3(m_i * 32, m_j * 32, m_k * 32);
 	if (m_i < 7) m_i++; 
 	else if (m_j < 7) m_j++;
 	else if (m_k < 7) m_k++;
 
-	return glm::vec3(m_i*32, m_j * 32, m_k * 32);
-	//return glm::vec3(0, 0, 0);
+	return newpoint;
 }
