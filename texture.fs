@@ -1,4 +1,4 @@
-#version 430
+#version 400
 
 in vec3 vert_eye;
 in vec3 vert_dir;
@@ -60,6 +60,18 @@ int fparent(int level, int id)
   return p;
 }
 
+vec4 getTexelTest(vec3 in_pos)
+{
+  float xNormalized = (in_pos.x / 256.0);
+  float yNormalized = (in_pos.y / 256.0);
+  float zNormalized = (in_pos.z / 256.0);
+  //if(xNormalized <= 1 && yNormalized <= 1 && zNormalized <= 1)
+  //  return vec4(0.2,1.0,0.0,0.2);
+  vec3 coords = vec3(xNormalized, yNormalized, zNormalized);
+  float vol_density = texture(BricksBuffer, coords).r;
+  return texture(TexTransferFunc, vol_density);
+}
+
 vec4 getTexel(vec3 in_pos)
 {
   // bottom-up, é o menor nível !
@@ -85,40 +97,15 @@ vec4 getTexel(vec3 in_pos)
     }
   }
 
-//  if(positionStorage.x == 64)
-//  {
-//    return vec4(0.0, 0.0, 1.0, 1.0);
-//  }
-//  if(positionStorage.x == 96)
-//  {
-//    return vec4(1.0, 1.0, 0.0, 1.0);
-//  }
-
   int dimension = int(256 / pow(2,level));
 
   ivec3 tileIndex = fijk(level, id);
-
-  //if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 7)
-  //{
-  // return vec4(0.0, 0.0, 1.0, 1.0);
-  //}
-
-  //if(level == 3 && tileIndex.x == 7 && tileIndex.y == 7 && tileIndex.z == 5)
-  //{
-  //  return vec4(1.0, 1.0, 0.0, 1.0);
-  //}
-
-  //if(level == 0 && tileIndex.x == 0 && tileIndex.y == 0 && tileIndex.z == 0)
-  //{
-  //  return vec4(0.0, 0.0, 0.0, 1.0);
-  //}
 
   vec3 min = tileIndex * dimension;
   vec3 max = min + vec3(dimension,dimension,dimension);
   float xn = (in_pos.x - min.x)/(max.x - min.x);
   float yn = (in_pos.y - min.y)/(max.y - min.y);
   float zn = (in_pos.z - min.z)/(max.z - min.z);
-
   float xNormalized = (positionStorage.x / 256.0) +  (xn / 8.0) ;
   float yNormalized = (positionStorage.y / 256.0) +  (yn / 8.0) ;
   float zNormalized = (positionStorage.z / 256.0) +  (zn / 8.0) ;

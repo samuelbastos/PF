@@ -1,9 +1,6 @@
 #include "Model.h"
 #include <algorithm>
 Model *Model::s_instance = 0;
-			
-#define TTT 32768					// TEXTURE TOTAL TEXELS
-#define VOS 256						// VOLUME ORIGINAL SIZE
 
 Model::Model() 
 {
@@ -39,8 +36,8 @@ Model::~Model(){}
 
 void Model::setBrickPosition(int brickID, glm::vec3 position)
 {
-	m_brickPosVec[brickID] = position;
-	m_brickPos[brickID*3] = position.x;
+	m_brickPosVec[brickID]  = position;
+	m_brickPos[brickID*3]   = position.x;
 	m_brickPos[brickID*3+1] = position.y;
 	m_brickPos[brickID*3+2] = position.z;
 }
@@ -51,6 +48,5 @@ glm::vec3 Model::genNewStoragePoint()
 	if (m_i < 7) m_i++; 
 	else if (m_j < 7) m_j++;
 	else if (m_k < 7) m_k++;
-
 	return newpoint;
 }

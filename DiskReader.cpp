@@ -34,6 +34,6 @@ unsigned char* DiskReader::readTileData(int tileLocation)
 	unsigned char* tilebuffer = new unsigned char[TILE_SIZE];
 	m_tileReader.seekg(tileLocation);
 	m_tileReader.read((char*)tilebuffer, TILE_SIZE);
-	m_tileReader.close();
+	//m_tileReader.close();
 	return tilebuffer;
 }

@@ -22,12 +22,10 @@ void Renderer::loadData(int brickID)
 {
 	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
 	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
-	auto brick = m_reader->readTileData(0);
+	auto brick = m_reader->readTileData(positionInFile);
 	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
 	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x, 
 			(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
-	auto error = glGetError();
-	std::cout << glewGetErrorString(error) << std::endl;
 }
 
 void Renderer::init(int screenWidth, int screenHeight)
@@ -42,10 +40,12 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	glsl_bricks_buffer->SetStorage(GL_R32F);
 
+
 	/* ******************************* */
-		loadData(0);   // 32,0,0
-		loadData(582); // 64,0,0
-		loadData(584); // 92,0,0
+		//loadData(0);
+		
+		for (int i = 73; i < 585; i++)
+			loadData(i);
 	/* ******************************* */
 
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");

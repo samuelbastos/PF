@@ -73,13 +73,15 @@ int initGLContext()
 
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
+
 	// Initialize GLEW to setup the OpenGL Function pointers
 	if (GLEW_OK != glewInit())
 	{
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		return EXIT_FAILURE;
 	}
-	
+	auto glversion = glewIsSupported("GL_VERSION_4_0");
+	if (glversion) std::cout << "supported" << std::endl;
 	return true;
 }
 

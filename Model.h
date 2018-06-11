@@ -15,7 +15,7 @@ class Model
 	int m_numberTotalTiles;							// Total de Bricks gerados ;
 	int m_volumeOriginalSize;						// Dimensão original do Volume carregado ;
 	static Model* s_instance;						// Instancia do Modelo ;
-	int m_i, m_j, m_k;									// Registros do Storage (para sempre alocar uma origem diferente válida)
+	int m_i, m_j, m_k;								// Registros do Storage (para sempre alocar uma origem diferente válida)
 
 public:
 	Model();

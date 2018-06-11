@@ -1,10 +1,7 @@
 #include "Texture3D.h"
-
-
 #include <cassert>
-
 #include <GL/glew.h>
-
+#include <iostream>
 namespace gl
 {
 	Texture3D::Texture3D(unsigned int width, unsigned int height, unsigned int depth
