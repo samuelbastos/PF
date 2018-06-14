@@ -27,6 +27,7 @@ namespace ooc
 		bool loadData(std::string path);
 		void genOctree();
 		void genTilesData();
+		void downscaleBricks();
 		void writeToDisc();
 		void fillBricksInfo();
 

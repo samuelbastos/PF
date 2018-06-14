@@ -5,7 +5,6 @@
 #include "Camera.h"
 #include "Renderer.h"
 #include "Preprocessor.h"
-
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -109,8 +108,6 @@ void render()
 {        
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	renderer->render(&cam);
-	//auto error = glGetError();
-	//std::cout << glewGetErrorString(error) << std::endl;
 	/* Swap front and back buffers */
 	glfwSwapBuffers(window);
 	/* Poll for and process events */
@@ -120,7 +117,8 @@ void render()
 int main()
 {
 	initialize();
-	while (!glfwWindowShouldClose(window)) render();
+	while (!glfwWindowShouldClose(window)) 
+		render();
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

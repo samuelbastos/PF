@@ -120,7 +120,7 @@ public:
 			   precisa fazer o cálculo novamente */
 			if (parent->values.empty())
 				for (int i = 0; i < 8; i++)
-					for (int j = 0; j < (parent->children[i]->values.size() / 8); j++)
+					for (int j = 0; j < parent->children[i]->values.size(); j++)
 						parent->values.push_back(parent->children[i]->values[j]);
 
 			parent->tileComputed = true;

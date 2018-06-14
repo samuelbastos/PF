@@ -24,11 +24,25 @@ Model::Model()
 		m_mapPos.insert(std::pair<int, int>(buffer[0], buffer[1]));
 	}
 
+	m_reader = ifstream("mapKeyCoord.bin", ios::in | ios::binary);
+	for (int i = 0; i < m_numberTotalTiles; i++)
+	{
+		int* buffer = new int[5];
+		m_reader.seekg(i * 20);
+		m_reader.read((char*)buffer, 20);
+		n_mapCoord.insert(std::pair<int, glm::vec3>(buffer[0],
+			glm::vec3(buffer[1], buffer[2], buffer[3])));
+	}
+	m_reader.close();
+
 	m_brickPos = new float[12 * m_numberTotalTiles];
 	for (int i = 0; i < (12 * m_numberTotalTiles); i++)
 		m_brickPos[i] = -1.0f;
 	for (int i = 0; i < m_numberTotalTiles; i++)
 		m_brickPosVec.push_back(glm::vec3(-1));
+
+	for (int i = 0; i < m_numberTotalTiles; i++)
+		m_mapVis.insert(std::pair<int, bool>(i, false));
 
 	m_reader.close();
 }

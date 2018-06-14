@@ -32,8 +32,10 @@ private:
 		float Position[3];
 	} Vertex;
 
+
+	void loadDataTest(int brickID);
 	void loadData(int brickID);
-	void checkmodeldata();
+	void threadfunc();
 	void createRenderingPass();
 	void resize(int w, int h);
 	void updateShaderParams();

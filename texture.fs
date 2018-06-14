@@ -45,8 +45,8 @@ ivec3 fijk(int level, int id)
   int n2 = int(pow(n,2));
   int delta = id - int(floor((pow(8,level) - 1) / 7));
   int i = int(floor(delta/n2));
-  int j = int(mod(floor(delta/n),n));
-  int k = int(mod(mod(delta,n),n));
+  int j = int(mod(int(floor(delta/n)),n));
+  int k = int(mod(int(mod(delta,n)),n));
   return ivec3(i,j,k);
 }
 
@@ -86,7 +86,7 @@ vec4 getTexel(vec3 in_pos)
   while(level >= 0)
   {
     positionStorage = BricksCoords[id];
-    if(positionStorage.x == -1)
+    if(positionStorage.x < 0)
     {
       id = fparent(level, id);
       level = level -1;

@@ -2,6 +2,8 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <chrono>         // std::chrono::seconds
 #include <string>
 #include "Reader.h"
 
@@ -24,8 +26,33 @@ void Renderer::loadData(int brickID)
 	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
 	auto brick = m_reader->readTileData(positionInFile);
 	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
+	Model::getInstance()->setBrickVisible(brickID);
 	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x, 
 			(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
+}
+
+void Renderer::loadDataTest(int brickID)
+{
+	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
+	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
+	auto brick = m_reader->readTileData(positionInFile);
+	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
+	Model::getInstance()->setBrickVisible(brickID);
+	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x,
+		(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
+	updateShaderParams();
+}
+
+void Renderer::threadfunc()
+{
+	int i = 0;
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+		loadData(i);
+		i++;
+		std::cout << "pause of " << 3 << " seconds ended\n";
+	}
 }
 
 void Renderer::init(int screenWidth, int screenHeight)
@@ -34,18 +61,23 @@ void Renderer::init(int screenWidth, int screenHeight)
 
 	m_volume_dim = glm::vec3((float)VOS, (float)VOS, (float)VOS);
 	m_brick_dim  = glm::vec3((float)TD, (float)TD, (float)TD);
-	vr_stepsize = 0.5f;
+	vr_stepsize = 0.4f;
 
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	glsl_bricks_buffer->SetStorage(GL_R32F);
 
-
 	/* ******************************* */
-		//loadData(0);
-		
-		for (int i = 73; i < 585; i++)
-			loadData(i);
+	loadData(0);
+	//loadData(1);
+	//loadData(2);
+	//loadData(3);
+	//loadData(4);
+	//loadData(5);
+	//loadData(6);
+	//loadData(7);
+	//loadData(8);
+
 	/* ******************************* */
 
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
@@ -64,6 +96,8 @@ void Renderer::init(int screenWidth, int screenHeight)
 	gl::Shader::Unbind();
 
 	resize(screenWidth, screenHeight);
+	//std::thread test(&Renderer::threadfunc, this);
+	//test.detach();
 }
 
 void Renderer::createRenderingPass()
@@ -92,9 +126,12 @@ void Renderer::createRenderingPass()
 	shader_rendering->SetUniform("BrickDimension", m_brick_dim);
 	shader_rendering->SetUniform("StepSize", vr_stepsize);
 
-	auto vecpos = Model::getInstance()->getBricksPositionsVec();
+	//auto vecpos = Model::getInstance()->getBricksPositionsVec();
+	//glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
+	//	, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), &vecpos[0][0]);
+
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
-		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), &vecpos[0][0]);
+		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
 
 	updateShaderParams();
 
@@ -189,6 +226,10 @@ void Renderer::showShaderCalculus()
 
 		getIntersectRayBox(vert_eye, vert_dir, m_s1, m_tnear, m_tfar);
 		glm::vec3 pos = (vert_eye + (vert_dir*m_tnear)) + (glm::vec3(VOS/2, VOS / 2, VOS / 2));
+		glm::vec3 difVec = pos - vert_eye;
+		float dif = 0;
+		if(difVec.x < 0 && difVec.y < 0 && difVec.z < 0)
+			dif = std::sqrtf(difVec.x*difVec.x + difVec.y*difVec.y + difVec.z*difVec.z);
 		// Printa apenas se câmera mexer 
 		if (sX != m_s1)
 		{	
@@ -197,6 +238,7 @@ void Renderer::showShaderCalculus()
 			printf("vert_dir -- x: %f; y: %f; z: %f \n", vert_dir.x, vert_dir.y, vert_dir.z);
 			printf("s1 value -- : %f; tnear: %f; tfar: %f \n", m_s1, m_tnear, m_tfar);
 			printf("POSITION -- x: %f; y: %f; z: %f \n", pos.x, pos.y, pos.z);
+			printf("DIF -- : %f; \n", dif);
 			std::cout << "//////////////////////////////////////////////////////" << std::endl;
 			std::cout << std::endl;
 		}

@@ -11,6 +11,8 @@ class Model
 	float* m_brickPos;
 	vector<glm::vec3> m_brickPosVec;
 	std::map<int, int> m_mapPos;					// Map Chave do Brick <-> Posição onde se encontram seus dados nos arquivos ;
+	std::map<int, bool> m_mapVis;
+	std::map<int, glm::vec3> n_mapCoord;
 	ifstream m_reader;
 	int m_numberTotalTiles;							// Total de Bricks gerados ;
 	int m_volumeOriginalSize;						// Dimensão original do Volume carregado ;
@@ -28,6 +30,7 @@ public:
 	}
 	
 	void setBrickPosition(int brickID, glm::vec3 position);
+	inline void setBrickVisible(int brickID) { m_mapPos[brickID] = true; }
 	glm::vec3 genNewStoragePoint();
 	inline int getNumberTotalTiles()   { return m_numberTotalTiles;   }
 	inline int getVolumeOriginalSize() { return m_volumeOriginalSize; }

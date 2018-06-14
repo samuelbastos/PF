@@ -2,8 +2,6 @@
 #include <math.h>       /* fmod */
 #include <algorithm>    // std::sort
 
-// Base:		32768 32
-// Sintetico:	512	  8
 #define TILE_SIZE 32768
 #define TILE_DIMENSION 32
 
@@ -24,6 +22,7 @@ namespace ooc
 		Preprocessor::genOctree();
 		Preprocessor::genTilesData();
 		Preprocessor::fillBricksInfo();
+		Preprocessor::downscaleBricks();
 		Preprocessor::writeToDisc();
 		return true;
 	}
@@ -135,6 +134,38 @@ namespace ooc
 		std::sort(m_tiles.begin(), m_tiles.end(), [=](Tile one, Tile two) { return one.key < two.key; });
 	}
 
+	void Preprocessor::downscaleBricks()
+	{
+		for (auto& tile : m_tiles)
+		{
+			if (tile.level < 3)
+			{
+				std::vector<OctreePoint*> points;
+				int divideby;
+				if (tile.level == 0) divideby = 512;
+				else if (tile.level == 1) divideby = 64;
+				else divideby = 8;
+				int sum = 0;
+				int counter = 1;
+				int index = 0;
+				for (int i = 0; i < tile.values.size(); i++)
+				{
+					sum += (int)(tile.values[i]->getValue());
+					if (counter == divideby)
+					{
+						int value = (int)(floorf(sum / divideby));
+						auto newpoint = new OctreePoint(glm::vec3(0), (unsigned char)value);
+						points.push_back(newpoint);
+						counter = 0;
+						sum = 0;
+					}
+					counter++;
+				}
+				tile.values.clear();
+				tile.values = points;
+			}
+		}
+	}
 
 	void Preprocessor::writeToDisc()
 	{
@@ -165,6 +196,22 @@ namespace ooc
 			buffer[1] = posTiles[iter - 1];
 			m_writer.write((char*)buffer, 8); // 16 = n bytes de float x 4
 			m_writer.seekp(iter * 8);
+			iter++;
+		}
+		m_writer.close();
+
+		m_writer = std::ofstream("mapKeyCoord.bin", std::ios::out | std::ios::binary);
+		iter = 1;
+		for (auto tile : m_tiles)
+		{
+			int* buffer = new int[5];
+			buffer[0] = tile.key;
+			buffer[1] = (int)tile.origin.x;
+			buffer[2] = (int)tile.origin.y;
+			buffer[3] = (int)tile.origin.z;
+			buffer[4] = (int)tile.halfDimension;
+			m_writer.write((char*)buffer, 20); // 16 = n bytes de float x 4
+			m_writer.seekp(iter * 20);
 			iter++;
 		}
 		m_writer.close();
