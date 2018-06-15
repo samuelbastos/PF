@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <glm/gtc/matrix_access.hpp>
+#include <stdlib.h>     /* srand, rand */
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -55,6 +56,37 @@ void Renderer::threadfunc()
 	}
 }
 
+std::vector<glm::vec3> genRandomColors()
+{
+	ofstream myfile;
+	myfile.open("example.txt");
+	
+	std::vector<glm::vec3> colors;
+	for (int i = 0; i < 585; i++)
+	{
+		float r1 = ((float)rand() / (RAND_MAX));
+		float r2 = ((float)rand() / (RAND_MAX));
+		float r3 = ((float)rand() / (RAND_MAX));
+		colors.push_back(glm::vec3(1.0, 1.0, 1.0));
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			for (int k = 0; k < 8; k++)
+			{
+				myfile << "if(tileIndex.x == " + std::to_string(i) + " && tileIndex.y == " + std::to_string(j) + " && tileIndex.z == " + std::to_string(k) + ")" << std::endl;
+				myfile << "{" << std::endl;
+				myfile << "return vec4(1.0/tileIndex.x, 1.0/tileIndex.y, 0.5/tileIndex.z, 1.0);" << std::endl;
+				myfile << "}" << std::endl;
+			}
+		}
+	}
+
+	myfile.close();
+	return colors;
+}
+
 void Renderer::init(int screenWidth, int screenHeight)
 {
 	m_reader = new DiskReader();
@@ -65,19 +97,22 @@ void Renderer::init(int screenWidth, int screenHeight)
 
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	glsl_bricks_buffer->SetStorage(GL_R32F);
+
+	//glsl_bricks_buffer->SetStorage(GL_R32F);
+	// Usando setData apenas pra ter alguma coisa pra renderizar e não passar em branco o raio (dropa fps)
+	unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
+	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
 
 	/* ******************************* */
-	loadData(0);
-	//loadData(1);
-	//loadData(2);
-	//loadData(3);
-	//loadData(4);
-	//loadData(5);
-	//loadData(6);
-	//loadData(7);
-	//loadData(8);
-
+	//// Level 3 inteiro
+	for (int i = 73; i < 585; i++)
+		loadData(i);
+	//// Level 2 inteiro 
+	//for (int i = 9; i < 73; i++)
+	//	loadData(i);
+	// Level 1 inteiro
+	//for (int i = 1; i < 9; i++)
+	//	loadData(i);
 	/* ******************************* */
 
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
@@ -133,6 +168,11 @@ void Renderer::createRenderingPass()
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
 		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
 
+	auto colors = genRandomColors();
+
+	//glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
+	//	, "RandomColors"), Model::getInstance()->getNumberTotalTiles(), &colors[0][0]);
+	  
 	updateShaderParams();
 
 	gl::Shader::Unbind();

@@ -12,6 +12,7 @@ uniform vec3 VolumeDimension;
 uniform vec3 BrickDimension;
 uniform float StepSize;
 uniform vec3 BricksCoords[585];
+uniform vec3 RandomColors[585];
 
 struct Ray {
   vec3 Origin;
@@ -98,7 +99,6 @@ vec4 getTexel(vec3 in_pos)
   }
 
   int dimension = int(256 / pow(2,level));
-
   ivec3 tileIndex = fijk(level, id);
 
   vec3 min = tileIndex * dimension;
