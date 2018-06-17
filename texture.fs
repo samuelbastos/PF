@@ -45,7 +45,7 @@ ivec3 fijk(int level, int id)
   int n = int(pow(2,level));
   int n2 = int(pow(n,2));
   int delta = id - int(floor((pow(8,level) - 1) / 7));
-  int i = int(floor(delta/n2));
+  int i = int(floor(floor(delta/n)/n));
   int j = int(mod(int(floor(delta/n)),n));
   int k = int(mod(int(mod(delta,n)),n));
   return ivec3(i,j,k);
@@ -54,9 +54,9 @@ ivec3 fijk(int level, int id)
 int fparent(int level, int id)
 {
   ivec3 ijk = fijk(level, id);
-  int i = int(floor((ijk.x - 1)/2));
-  int j = int(floor((ijk.y - 1)/2));
-  int k = int(floor((ijk.z - 1)/2));
+  int i = int(floor(ijk.x/2));
+  int j = int(floor(ijk.y/2));
+  int k = int(floor(ijk.z/2));
   int p = fid((level-1), ivec3(i,j,k));
   return p;
 }

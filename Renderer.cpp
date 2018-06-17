@@ -56,35 +56,48 @@ void Renderer::threadfunc()
 	}
 }
 
-std::vector<glm::vec3> genRandomColors()
+void genRandomColors()
 {
 	ofstream myfile;
-	myfile.open("example.txt");
-	
-	std::vector<glm::vec3> colors;
-	for (int i = 0; i < 585; i++)
+	myfile.open("colors.txt");
+	std::vector<std::vector<std::vector<glm::vec3>>> colors;
+	std::vector<std::vector<glm::vec3>> jaux;
+	std::vector<glm::vec3> kaux;
+	srand(time(0));
+	for (int i = 0; i < 4; i++)
 	{
-		float r1 = ((float)rand() / (RAND_MAX));
-		float r2 = ((float)rand() / (RAND_MAX));
-		float r3 = ((float)rand() / (RAND_MAX));
-		colors.push_back(glm::vec3(1.0, 1.0, 1.0));
-	}
-	for (int i = 0; i < 8; i++)
-	{
-		for (int j = 0; j < 8; j++)
+		jaux.clear();
+		for (int j = 0; j < 4; j++)
 		{
-			for (int k = 0; k < 8; k++)
+			kaux.clear();
+			for (int k = 0; k < 4; k++)
+			{
+				float r1 = ((float)rand() / (RAND_MAX));
+				float r2 = ((float)rand() / (RAND_MAX));
+				float r3 = ((float)rand() / (RAND_MAX));
+				kaux.push_back(glm::vec3(r1, r2, r3));
+			}
+			jaux.push_back(kaux);
+		}
+		colors.push_back(jaux);
+	}
+	
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int k = 0; k < 4; k++)
 			{
 				myfile << "if(tileIndex.x == " + std::to_string(i) + " && tileIndex.y == " + std::to_string(j) + " && tileIndex.z == " + std::to_string(k) + ")" << std::endl;
 				myfile << "{" << std::endl;
-				myfile << "return vec4(1.0/tileIndex.x, 1.0/tileIndex.y, 0.5/tileIndex.z, 1.0);" << std::endl;
+				//myfile << "return vec4(1.0/tileIndex.x, 1.0/tileIndex.y, 0.5/tileIndex.z, 1.0);" << std::endl;
+				myfile << "return vec4(" + to_string(colors[i][j][k].x) + "," + to_string(colors[i][j][k].y) + "," + to_string(colors[i][j][k].z) + ",1.0);" << std::endl;
 				myfile << "}" << std::endl;
 			}
 		}
 	}
 
 	myfile.close();
-	return colors;
 }
 
 void Renderer::init(int screenWidth, int screenHeight)
@@ -93,7 +106,7 @@ void Renderer::init(int screenWidth, int screenHeight)
 
 	m_volume_dim = glm::vec3((float)VOS, (float)VOS, (float)VOS);
 	m_brick_dim  = glm::vec3((float)TD, (float)TD, (float)TD);
-	vr_stepsize = 0.4f;
+	vr_stepsize = 0.1f;
 
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
@@ -104,15 +117,17 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
 
 	/* ******************************* */
-	//// Level 3 inteiro
+	// Level 3 inteiro
 	for (int i = 73; i < 585; i++)
 		loadData(i);
-	//// Level 2 inteiro 
-	//for (int i = 9; i < 73; i++)
-	//	loadData(i);
+	// Level 2 inteiro 
+	for (int i = 9; i < 73; i++)
+		loadData(i);
 	// Level 1 inteiro
-	//for (int i = 1; i < 9; i++)
-	//	loadData(i);
+	for (int i = 1; i < 9; i++)
+		loadData(i);
+	// Level 0 inteiro (:P)
+	loadData(0);
 	/* ******************************* */
 
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
@@ -131,8 +146,8 @@ void Renderer::init(int screenWidth, int screenHeight)
 	gl::Shader::Unbind();
 
 	resize(screenWidth, screenHeight);
-	//std::thread test(&Renderer::threadfunc, this);
-	//test.detach();
+	std::thread test(&Renderer::threadfunc, this);
+	test.detach();
 }
 
 void Renderer::createRenderingPass()
@@ -168,10 +183,7 @@ void Renderer::createRenderingPass()
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
 		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
 
-	auto colors = genRandomColors();
-
-	//glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
-	//	, "RandomColors"), Model::getInstance()->getNumberTotalTiles(), &colors[0][0]);
+	//genRandomColors();
 	  
 	updateShaderParams();
 
