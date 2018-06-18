@@ -32,8 +32,9 @@ private:
 		float Position[3];
 	} Vertex;
 
-	void loadData(int brickID);
+	void loadBrick(int brickID);
 	void loadChilds(int brickID);
+	void updateTreeCut(int brickID);
 	void threadfunc();
 	void createRenderingPass();
 	void resize(int w, int h);

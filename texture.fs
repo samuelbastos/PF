@@ -66,8 +66,6 @@ vec4 getTexelTest(vec3 in_pos)
   float xNormalized = (in_pos.x / 256.0);
   float yNormalized = (in_pos.y / 256.0);
   float zNormalized = (in_pos.z / 256.0);
-  //if(xNormalized <= 1 && yNormalized <= 1 && zNormalized <= 1)
-  //  return vec4(0.2,1.0,0.0,0.2);
   vec3 coords = vec3(xNormalized, yNormalized, zNormalized);
   float vol_density = texture(BricksBuffer, coords).r;
   return texture(TexTransferFunc, vol_density);
@@ -103,9 +101,9 @@ vec4 getTexel(vec3 in_pos)
 
   vec3 min = tileIndex * dimension;
   vec3 max = min + vec3(dimension,dimension,dimension);
-  float xn = ((in_pos.x - min.x)/(max.x - min.x))*32.0;
-  float yn = ((in_pos.y - min.y)/(max.y - min.y))*32.0;
-  float zn = ((in_pos.z - min.z)/(max.z - min.z))*32.0;
+  float xn = ((in_pos.x - min.x)/(max.x - min.x)) * 32.0;
+  float yn = ((in_pos.y - min.y)/(max.y - min.y)) * 32.0;
+  float zn = ((in_pos.z - min.z)/(max.z - min.z)) * 32.0;
   
   float xNormalized = (positionStorage.x + xn) / 256.0;
   float yNormalized = (positionStorage.y + yn) / 256.0;

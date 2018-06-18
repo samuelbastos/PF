@@ -22,7 +22,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer(){}
 
-void Renderer::loadData(int brickID)
+void Renderer::loadBrick(int brickID)
 {
 	if (!Model::getInstance()->getBrickVisibility(brickID))
 	{
@@ -42,17 +42,39 @@ void Renderer::loadChilds(int brickID)
 {
 	auto childIDs = Model::getInstance()->getChilds(brickID);
 	for (int id : childIDs)
-		Renderer::loadData(id);
+		Renderer::loadBrick(id);
+}
+
+void Renderer::updateTreeCut(int brickID)
+{
+	auto childs = Model::getInstance()->getChilds(brickID);
+	if (childs.size() != 0)
+	{
+		if (Model::getInstance()->getBrickVisibility(childs[0]))
+		{
+			for (int child : childs)
+				updateTreeCut(child);
+		}
+		else
+		{
+			glm::vec3 brickCoord = Model::getInstance()->getBrickCoord(brickID);
+			glm::vec3 eye = -(glm::vec3(ViewMatrix[3])) * glm::mat3(ViewMatrix);
+			glm::vec3 dif = brickCoord - eye;
+			float distance = sqrtf(dif.x*dif.x + dif.y*dif.y + dif.z*dif.z);
+			if (distance < 300)
+				loadChilds(brickID);
+		}
+	}
 }
 
 void Renderer::threadfunc()
 {
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::seconds(3));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		vr_outdated = true;
 		counting++;
-		std::cout << "(pause of " << 3 << " seconds ended)" << std::endl;
+		//std::cout << "(pause of " << 3 << " seconds ended)" << std::endl;
 	}
 }
 
@@ -111,11 +133,12 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer = new gl::Texture3D(VOS, VOS, VOS, TD, TD, TD);
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 
-	//glsl_bricks_buffer->SetStorage(GL_R32F);
+	glsl_bricks_buffer->SetStorage(GL_R32F);
 	// Usando setData apenas pra ter alguma coisa pra renderizar e não passar em branco o raio (dropa fps)
-	unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
-	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
+	//unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
+	//glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
 
+	Renderer::loadBrick(0);
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 
@@ -233,20 +256,7 @@ void Renderer::resize(int w, int h)
 void Renderer::updateShaderParams()
 {
 	shader_rendering->Bind();
-	if (counting == 0)
-	{
-		loadData(0);
-	}
-	else
-	{
-		if (counting == 1)
-		{
-			loadChilds(0);
-			//loadChilds(1);
-		}
-		else
-			loadChilds(counting);
-	}
+	updateTreeCut(0);
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
 		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
 	gl::Shader::Unbind();

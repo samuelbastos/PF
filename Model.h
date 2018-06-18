@@ -37,6 +37,7 @@ public:
 	inline int getVolumeOriginalSize() { return m_volumeOriginalSize; }
 	inline float* getBricksPositions() { return m_brickPos; }
 	inline int getPositionInFileById(int id) { return m_mapPos[id]; }
+	inline glm::vec3 getBrickCoord(int brickID) { return n_mapCoord[brickID]; }
 	inline bool getBrickVisibility(int id) { return m_mapVis[id]; }
 	inline std::vector<glm::vec3> getBricksPositionsVec() { return m_brickPosVec;  }
 	int fid(int level, glm::vec3 ijk);
