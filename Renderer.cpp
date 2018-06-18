@@ -14,6 +14,7 @@
 
 #define VOS 256					// VOLUME ORININAL SIZE
 #define TD 32					// TILE DIMENSION
+
 Renderer::Renderer()
 {
 	vr_outdated = true;
@@ -23,36 +24,35 @@ Renderer::~Renderer(){}
 
 void Renderer::loadData(int brickID)
 {
-	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
-	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
-	auto brick = m_reader->readTileData(positionInFile);
-	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
-	Model::getInstance()->setBrickVisible(brickID);
-	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x, 
+	if (!Model::getInstance()->getBrickVisibility(brickID))
+	{
+		auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
+		int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
+		auto brick = m_reader->readTileData(positionInFile);
+
+		Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
+		Model::getInstance()->setBrickVisible(brickID);
+
+		glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x,
 			(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
+	}
 }
 
-void Renderer::loadDataTest(int brickID)
+void Renderer::loadChilds(int brickID)
 {
-	auto newStoragePoint = Model::getInstance()->genNewStoragePoint();
-	int positionInFile = Model::getInstance()->getPositionInFileById(brickID);
-	auto brick = m_reader->readTileData(positionInFile);
-	Model::getInstance()->setBrickPosition(brickID, newStoragePoint);
-	Model::getInstance()->setBrickVisible(brickID);
-	glsl_bricks_buffer->SetSubData(brick, (int)newStoragePoint.x,
-		(int)newStoragePoint.y, (int)newStoragePoint.z, GL_RED, GL_UNSIGNED_BYTE);
-	updateShaderParams();
+	auto childIDs = Model::getInstance()->getChilds(brickID);
+	for (int id : childIDs)
+		Renderer::loadData(id);
 }
 
 void Renderer::threadfunc()
 {
-	int i = 0;
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(3));
-		loadData(i);
-		i++;
-		std::cout << "pause of " << 3 << " seconds ended\n";
+		vr_outdated = true;
+		counting++;
+		std::cout << "(pause of " << 3 << " seconds ended)" << std::endl;
 	}
 }
 
@@ -116,20 +116,6 @@ void Renderer::init(int screenWidth, int screenHeight)
 	unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
 	glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
 
-	/* ******************************* */
-	// Level 3 inteiro
-	for (int i = 73; i < 585; i++)
-		loadData(i);
-	// Level 2 inteiro 
-	for (int i = 9; i < 73; i++)
-		loadData(i);
-	// Level 1 inteiro
-	for (int i = 1; i < 9; i++)
-		loadData(i);
-	// Level 0 inteiro (:P)
-	loadData(0);
-	/* ******************************* */
-
 	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 
@@ -141,7 +127,6 @@ void Renderer::init(int screenWidth, int screenHeight)
 	shader_rendering->Bind();
 	shader_rendering->BindUniforms();
 	shader_rendering->Unbind();
-
 	gl::VAO::Unbind();
 	gl::Shader::Unbind();
 
@@ -167,7 +152,7 @@ void Renderer::createRenderingPass()
 		"texture.vs",
 		"texture.fs"
 	);
-
+	
 	shader_rendering->Bind();
 	shader_rendering->SetUniform("ViewMatrix", ViewMatrix);
 	shader_rendering->SetUniformTexture3D("BricksBuffer", glsl_bricks_buffer->GetTextureID(), 0);
@@ -176,17 +161,9 @@ void Renderer::createRenderingPass()
 	shader_rendering->SetUniform("BrickDimension", m_brick_dim);
 	shader_rendering->SetUniform("StepSize", vr_stepsize);
 
-	//auto vecpos = Model::getInstance()->getBricksPositionsVec();
-	//glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
-	//	, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), &vecpos[0][0]);
-
 	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
 		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
-
-	//genRandomColors();
 	  
-	updateShaderParams();
-
 	gl::Shader::Unbind();
 
 	// VBO, VAO, IBO
@@ -219,8 +196,6 @@ void Renderer::render(Camera* cam)
 	shader_rendering->Bind();
 	shader_rendering->SetUniform("ViewMatrix", ViewMatrix);
 	shader_rendering->BindUniform("ViewMatrix");
-
-	//showShaderCalculus();
 
 	// Render quad on screen
 	{
@@ -258,6 +233,22 @@ void Renderer::resize(int w, int h)
 void Renderer::updateShaderParams()
 {
 	shader_rendering->Bind();
+	if (counting == 0)
+	{
+		loadData(0);
+	}
+	else
+	{
+		if (counting == 1)
+		{
+			loadChilds(0);
+			//loadChilds(1);
+		}
+		else
+			loadChilds(counting);
+	}
+	glUniform3fv(glGetUniformLocation(shader_rendering->GetProgramID()
+		, "BricksCoords"), Model::getInstance()->getNumberTotalTiles(), Model::getInstance()->getBricksPositions());
 	gl::Shader::Unbind();
 }
 

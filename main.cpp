@@ -14,7 +14,7 @@ using namespace std;
 GLFWwindow *window;
 Renderer* renderer;
 ooc::Preprocessor* preprocessor;
-Camera cam(60.0f);
+Camera cam(400.0f);
 GLint WIDTH = 1024, HEIGHT = 768;
 int screenWidth, screenHeight;
 

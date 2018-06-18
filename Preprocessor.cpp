@@ -104,7 +104,7 @@ namespace ooc
 		m_octree.generateTiles();
 		std::cout << "Octree preenchida com todos os Tiles;" << std::endl;
 
-		m_octree. getTiles(&m_tilesMap);
+		m_octree.getTiles(&m_tilesMap);
 	}
 
 	void Preprocessor::genTilesData()

@@ -32,9 +32,8 @@ private:
 		float Position[3];
 	} Vertex;
 
-
-	void loadDataTest(int brickID);
 	void loadData(int brickID);
+	void loadChilds(int brickID);
 	void threadfunc();
 	void createRenderingPass();
 	void resize(int w, int h);
@@ -45,7 +44,7 @@ private:
 	bool intersectBox(glm::vec3 eye, glm::vec3 dir, glm::vec3 min, glm::vec3 max, float& tnear, float& tfar);
 
 	bool vr_outdated = true;
-
+	int counting = 0;
 	DiskReader* m_reader;
 
 	gl::Texture3D* glsl_bricks_buffer;
