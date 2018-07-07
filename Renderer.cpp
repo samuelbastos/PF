@@ -73,53 +73,7 @@ void Renderer::threadfunc()
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		vr_outdated = true;
-		counting++;
-		//std::cout << "(pause of " << 3 << " seconds ended)" << std::endl;
 	}
-}
-
-void genRandomColors()
-{
-	ofstream myfile;
-	myfile.open("colors.txt");
-	std::vector<std::vector<std::vector<glm::vec3>>> colors;
-	std::vector<std::vector<glm::vec3>> jaux;
-	std::vector<glm::vec3> kaux;
-	srand(time(0));
-	for (int i = 0; i < 4; i++)
-	{
-		jaux.clear();
-		for (int j = 0; j < 4; j++)
-		{
-			kaux.clear();
-			for (int k = 0; k < 4; k++)
-			{
-				float r1 = ((float)rand() / (RAND_MAX));
-				float r2 = ((float)rand() / (RAND_MAX));
-				float r3 = ((float)rand() / (RAND_MAX));
-				kaux.push_back(glm::vec3(r1, r2, r3));
-			}
-			jaux.push_back(kaux);
-		}
-		colors.push_back(jaux);
-	}
-	
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			for (int k = 0; k < 4; k++)
-			{
-				myfile << "if(tileIndex.x == " + std::to_string(i) + " && tileIndex.y == " + std::to_string(j) + " && tileIndex.z == " + std::to_string(k) + ")" << std::endl;
-				myfile << "{" << std::endl;
-				//myfile << "return vec4(1.0/tileIndex.x, 1.0/tileIndex.y, 0.5/tileIndex.z, 1.0);" << std::endl;
-				myfile << "return vec4(" + to_string(colors[i][j][k].x) + "," + to_string(colors[i][j][k].y) + "," + to_string(colors[i][j][k].z) + ",1.0);" << std::endl;
-				myfile << "}" << std::endl;
-			}
-		}
-	}
-
-	myfile.close();
 }
 
 void Renderer::init(int screenWidth, int screenHeight)
@@ -134,12 +88,9 @@ void Renderer::init(int screenWidth, int screenHeight)
 	glsl_bricks_buffer->GenerateTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 
 	glsl_bricks_buffer->SetStorage(GL_R32F);
-	// Usando setData apenas pra ter alguma coisa pra renderizar e não passar em branco o raio (dropa fps)
-	//unsigned char* buffer = new unsigned char[VOS*VOS*VOS];
-	//glsl_bricks_buffer->SetData(buffer, GL_R32F, GL_RED, GL_UNSIGNED_BYTE);
 
 	Renderer::loadBrick(0);
-	auto tf = vr::ReadTransferFunction("Bonsai.1.256x256x256.tf1d");
+	auto tf = vr::ReadTransferFunction("testeTF.tf1d");
 	glsl_transfer_function = tf->GenerateTexture_1D_RGBA();
 
 	ProjectionMatrix = glm::mat4();
@@ -345,4 +296,47 @@ bool Renderer::intersectBox(glm::vec3 eye, glm::vec3 dir, glm::vec3 min, glm::ve
 	tf = tfar;
 
 	return tfar > tnear;
+}
+void genRandomColors()
+{
+	ofstream myfile;
+	myfile.open("colors.txt");
+	std::vector<std::vector<std::vector<glm::vec3>>> colors;
+	std::vector<std::vector<glm::vec3>> jaux;
+	std::vector<glm::vec3> kaux;
+	srand(time(0));
+	for (int i = 0; i < 4; i++)
+	{
+		jaux.clear();
+		for (int j = 0; j < 4; j++)
+		{
+			kaux.clear();
+			for (int k = 0; k < 4; k++)
+			{
+				float r1 = ((float)rand() / (RAND_MAX));
+				float r2 = ((float)rand() / (RAND_MAX));
+				float r3 = ((float)rand() / (RAND_MAX));
+				kaux.push_back(glm::vec3(r1, r2, r3));
+			}
+			jaux.push_back(kaux);
+		}
+		colors.push_back(jaux);
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int k = 0; k < 4; k++)
+			{
+				myfile << "if(tileIndex.x == " + std::to_string(i) + " && tileIndex.y == " + std::to_string(j) + " && tileIndex.z == " + std::to_string(k) + ")" << std::endl;
+				myfile << "{" << std::endl;
+				//myfile << "return vec4(1.0/tileIndex.x, 1.0/tileIndex.y, 0.5/tileIndex.z, 1.0);" << std::endl;
+				myfile << "return vec4(" + to_string(colors[i][j][k].x) + "," + to_string(colors[i][j][k].y) + "," + to_string(colors[i][j][k].z) + ",1.0);" << std::endl;
+				myfile << "}" << std::endl;
+			}
+		}
+	}
+
+	myfile.close();
 }
